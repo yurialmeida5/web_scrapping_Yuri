@@ -1,0 +1,16 @@
+Qtd_connections,Number_of_Flights,Min_Price,search_date,search_time,search_day_period
+nonstop,14,336,2020-12-14,15:02:15,afternoon
+1stop,45,287,2020-12-14,15:02:15,afternoon
+2stop,28,2451,2020-12-14,15:02:15,afternoon
+nonstop,14,336,2020-12-14,14:53:18,afternoon
+1stop,45,287,2020-12-14,14:53:18,afternoon
+2stop,28,2451,2020-12-14,14:53:18,afternoon
+nonstop,14,193,12/13/2020,18:09:31,night
+1stop,47,287,12/13/2020,18:09:31,night
+2stop,26,2451,12/13/2020,18:09:31,night
+nonstop,14,193,12/12/2020,12:44:31,afternoon
+1stop,47,287,12/12/2020,12:44:31,afternoon
+2stop,26,2451,12/12/2020,12:44:31,afternoon
+nonstop,14,193,12/12/2020,11:53:41,morning
+1stop,47,287,12/12/2020,11:53:41,morning
+2stop,26,2451,12/12/2020,11:53:41,morning

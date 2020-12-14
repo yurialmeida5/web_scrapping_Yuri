@@ -1,0 +1,10 @@
+Air_Line_Company,Number_of_Flights,Min_Price,airlineCode,search_date,search_time,search_day_period
+LATAM Airlines Group,68,287,LA,2020-12-14,14:52:33,afternoon
+GOL Linhas Aereas S.A.,16,429,G3,2020-12-14,14:52:33,afternoon
+Azul,3,336,AD,2020-12-14,14:52:33,afternoon
+LATAM Airlines Group,68,193,LA,12/13/2020,18:37:19,night
+GOL Linhas Aereas S.A.,16,259,G3,12/13/2020,18:37:19,night
+Azul,3,442,AD,12/13/2020,18:37:19,night
+LATAM Airlines Group,68,193,LA,12/13/2020,18:16:02,night
+GOL Linhas Aereas S.A.,16,259,G3,12/13/2020,18:16:02,night
+Azul,3,442,AD,12/13/2020,18:16:02,night
