@@ -13,72 +13,6 @@ rm(list=ls())
 # Important, due to a connection limitation it`s important to refresh (copy and paste) the JSON link every 3 hours
 
 SearchString <- "https://www.expedia.com.br/Flight-Search-Paging?c=1ed28b8c-c03b-4142-be44-c0862629c19d&is=1&sp=asc&cz=200&cn=0"
-summary_type <- 'Connection'
-
-
-# Retrieve Flights Summary ------------------------------------------------
-
-#### Doing it to show that we can retrieve also tables from a list instead of unique values 
-
-get_summary_flights <- function(SearchString, summary_type = 'AirCompany'){
-  
-  
-  ##### Define the variables and get the JSON ########
-  
-  df <- list()
-  tbf = data.frame()
-  df <- fromJSON(SearchString)
-  final_df = data.frame()
-  
-  if(summary_type == 'Connection'){
-  
-    ################## FILTER CONNECTION SUMMARY ######################
-    
-    previous_data <- read.csv("Final_Project/Datasets/summary_byconnection.csv") 
-    tbf <- df$content$summary$filters$stopFilters  
-    tbf$run_time <- Sys.time()
-    tbf = subset(tbf, select = -c(filterCategory,formattedReferencePrice,formattedPrice))
-    tbf <- tbf %>% rename( Number_of_Flights = totalCount,
-                           Min_Price = priceAsDouble,
-                           Qtd_connections = filterName)
-    tbf <- separate(data = tbf, into = c("search_date", "search_time"), col = run_time , sep = ' ')
-    
-    tbf$search_day_period <- with(tbf,  ifelse(hour(hms(search_time)) >= 5 & hour(hms(search_time)) <=11, "morning",
-                                        ifelse(hour(hms(search_time))>11 & hour(hms(search_time))<=17, "afternoon", "night")))
-    final_df <- dplyr::union(tbf,previous_data)                      
-    write.table(final_df , "Final_Project/Datasets/summary_byconnection.csv", row.names = FALSE)
-    
-    return(final_df)
-    
-  }else{
-  
-  ################################### SUMMARY AIRLINE FILTERS ##################################################
-      
-  previous_data <- read.csv("Final_Project/Datasets/summary_byaircompany.csv")
-  tbf <- df$content$summary$filters$airlineFilters
-  tbf$run_time <- Sys.time()
-  tbf = subset(tbf, select = -c(filterCategory,formattedReferencePrice,formattedPrice))
-  tbf <- tbf %>% rename( Number_of_Flights = totalCount,
-                             Min_Price = priceAsDouble,
-                             Air_Line_Company = filterName)
-  tbf <- separate(data = tbf, into = c("search_date", "search_time"), col = run_time , sep = ' ')
-  tbf$search_day_period <- with(tbf,  ifelse(hour(hms(search_time)) >= 5 & hour(hms(search_time)) <=11, "morning",
-                                          ifelse(hour(hms(search_time))>11 & hour(hms(search_time))<=17, "afternoon", "night")))
-      
-  final_df <- dplyr::union(tbf,previous_data)                      
-  write.table(final_df , "Final_Project/Datasets/summary_byaircompany.csv", row.names = FALSE)
-  
-  return(final_df)   
-  
-  }
-
-}
-
-tbf <- get_summary_flights(SearchString, summary_type)
-
-
-# Retrieve_Full_DataSet ---------------------------------------------------
-
 
 get_flights_table <- function(SearchString){
   
@@ -178,9 +112,6 @@ ggplot( data = Price_Analysis_Remaing_days, aes( x = remaining_days , y = min ) 
   geom_point( color='blue') +
   geom_smooth( method = lm , color = 'red' )
 
-ggplot( data = Price_Analysis_Remaing_days, aes( x = remaining_days , y = max ) ) + 
-  geom_point( color='blue') +
-  geom_smooth( method = lm , color = 'red' )
 
 ggplot( data = Price_Analysis_Remaing_days, aes( x = remaining_days , y = mean ) ) + 
   geom_point( color='blue') +

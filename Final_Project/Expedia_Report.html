@@ -228,212 +228,346 @@ One Way Flight 1 Passanger</p>
 <div id="add-the-url-and-define-the-summary-parameter" class="section level2">
 <h2>Add the URL and define the summary parameter</h2>
 <p>On the webscrapping code there are only two parameters and functions.</p>
-<div id="functions" class="section level3">
-<h3>Functions</h3>
-<p>The first function is the one the retrieve the summaries based on the filters on the left of the page. The ones selected were the filter by Connection and the one by AirCompany.<br />
-The second function is the one that retrieves the entire flight information dataset, where you can visualize the most important information regarding all flights.</p>
+<div id="function" class="section level3">
+<h3>Function</h3>
+<p>The function is the one that retrieves the entire flight information dataset, where you can visualize the most important information regarding all flights.</p>
 </div>
 <div id="parameters" class="section level3">
 <h3>Parameters</h3>
-<p>The first parameter is the URL, after copying the URL link, you should replace it on the variable SearchString on the code.<br />
-The second parameter is the one that decides what type of summary statistics you will end up. By default, it was selected the AirCompany one.</p>
+<p>The first parameter is the URL, after copying the URL link, you should replace it on the variable SearchString on the code.</p>
 <p>PS: Due to a connection limitation it`s important to refresh (copy and paste) the JSON link every 3 hours, you may get disconnected and the following won’t retrieve the necessary information.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>SearchString &lt;-<span class="st"> &quot;https://www.expedia.com.br/Flight-Search-Paging?c=cf4b1814-5f95-4785-a03b-406cb9315e66&amp;is=1&amp;sp=asc&amp;cz=200&amp;cn=0&quot;</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a>summary_type &lt;-<span class="st"> &#39;Connection&#39;</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>SearchString &lt;-<span class="st"> &quot;https://www.expedia.com.br/Flight-Search-Paging?c=e15f405f-472d-4c46-a1cf-a3ae5f934e45&amp;is=1&amp;sp=asc&amp;cz=200&amp;cn=0&quot;</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a></span>
 <span id="cb1-3"><a href="#cb1-3"></a></span>
-<span id="cb1-4"><a href="#cb1-4"></a></span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="co"># Retrieve Flights Summary ------------------------------------------------</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co"># Retrieve_Full_DataSet ---------------------------------------------------</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a></span>
 <span id="cb1-6"><a href="#cb1-6"></a></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co">#### Doing it to show that we can retrieve also tables from a list instead of unique values </span></span>
-<span id="cb1-8"><a href="#cb1-8"></a></span>
-<span id="cb1-9"><a href="#cb1-9"></a>get_summary_flights &lt;-<span class="st"> </span><span class="cf">function</span>(SearchString, <span class="dt">summary_type =</span> <span class="st">&#39;AirCompany&#39;</span>){</span>
+<span id="cb1-7"><a href="#cb1-7"></a>get_flights_table &lt;-<span class="st"> </span><span class="cf">function</span>(SearchString){</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  </span>
+<span id="cb1-9"><a href="#cb1-9"></a>  df_total =<span class="st"> </span><span class="kw">data.frame</span>()</span>
 <span id="cb1-10"><a href="#cb1-10"></a>  </span>
-<span id="cb1-11"><a href="#cb1-11"></a>  </span>
-<span id="cb1-12"><a href="#cb1-12"></a>  <span class="co">##### Define the variables and get the JSON ########</span></span>
-<span id="cb1-13"><a href="#cb1-13"></a>  </span>
-<span id="cb1-14"><a href="#cb1-14"></a>  df &lt;-<span class="st"> </span><span class="kw">list</span>()</span>
-<span id="cb1-15"><a href="#cb1-15"></a>  tbf =<span class="st"> </span><span class="kw">data.frame</span>()</span>
-<span id="cb1-16"><a href="#cb1-16"></a>  df &lt;-<span class="st"> </span><span class="kw">fromJSON</span>(SearchString)</span>
-<span id="cb1-17"><a href="#cb1-17"></a>  final_df =<span class="st"> </span><span class="kw">data.frame</span>()</span>
-<span id="cb1-18"><a href="#cb1-18"></a>  </span>
-<span id="cb1-19"><a href="#cb1-19"></a>  <span class="cf">if</span>(summary_type <span class="op">==</span><span class="st"> &#39;Connection&#39;</span>){</span>
-<span id="cb1-20"><a href="#cb1-20"></a>  </span>
-<span id="cb1-21"><a href="#cb1-21"></a>    <span class="co">################## FILTER CONNECTION SUMMARY ######################</span></span>
-<span id="cb1-22"><a href="#cb1-22"></a>    </span>
-<span id="cb1-23"><a href="#cb1-23"></a>    previous_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/summary_byconnection.csv&quot;</span>) </span>
-<span id="cb1-24"><a href="#cb1-24"></a>    tbf &lt;-<span class="st"> </span>df<span class="op">$</span>content<span class="op">$</span>summary<span class="op">$</span>filters<span class="op">$</span>stopFilters  </span>
-<span id="cb1-25"><a href="#cb1-25"></a>    tbf<span class="op">$</span>run_time &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
-<span id="cb1-26"><a href="#cb1-26"></a>    </span>
-<span id="cb1-27"><a href="#cb1-27"></a>    tbf =<span class="st"> </span><span class="kw">subset</span>(tbf, <span class="dt">select =</span> <span class="op">-</span><span class="kw">c</span>(filterCategory,formattedReferencePrice,formattedPrice))</span>
-<span id="cb1-28"><a href="#cb1-28"></a>    </span>
-<span id="cb1-29"><a href="#cb1-29"></a>    tbf &lt;-<span class="st"> </span>tbf <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>( <span class="dt">Number_of_Flights =</span> totalCount,</span>
-<span id="cb1-30"><a href="#cb1-30"></a>                           <span class="dt">Min_Price =</span> priceAsDouble,</span>
-<span id="cb1-31"><a href="#cb1-31"></a>                           <span class="dt">Qtd_connections =</span> filterName)</span>
-<span id="cb1-32"><a href="#cb1-32"></a>    tbf &lt;-<span class="st"> </span><span class="kw">separate</span>(<span class="dt">data =</span> tbf, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;search_date&quot;</span>, <span class="st">&quot;search_time&quot;</span>), <span class="dt">col =</span> run_time , <span class="dt">sep =</span> <span class="st">&#39; &#39;</span>)</span>
-<span id="cb1-33"><a href="#cb1-33"></a>    </span>
-<span id="cb1-34"><a href="#cb1-34"></a>    tbf<span class="op">$</span>search_day_period &lt;-<span class="st"> </span><span class="kw">with</span>(tbf,  <span class="kw">ifelse</span>(<span class="kw">hour</span>(<span class="kw">hms</span>(search_time)) <span class="op">&gt;=</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw">hour</span>(<span class="kw">hms</span>(search_time)) <span class="op">&lt;=</span><span class="dv">11</span>, <span class="st">&quot;morning&quot;</span>,</span>
-<span id="cb1-35"><a href="#cb1-35"></a>                                        <span class="kw">ifelse</span>(<span class="kw">hour</span>(<span class="kw">hms</span>(search_time))<span class="op">&gt;</span><span class="dv">11</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw">hour</span>(<span class="kw">hms</span>(search_time))<span class="op">&lt;=</span><span class="dv">17</span>, <span class="st">&quot;afternoon&quot;</span>, <span class="st">&quot;night&quot;</span>)))</span>
-<span id="cb1-36"><a href="#cb1-36"></a>    final_df &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">union</span>(tbf,previous_data)                      </span>
-<span id="cb1-37"><a href="#cb1-37"></a>    <span class="kw">write.table</span>(final_df , <span class="st">&quot;D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/summary_byconnection.csv&quot;</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb1-11"><a href="#cb1-11"></a>  df_fromJson &lt;-<span class="st"> </span><span class="kw">fromJSON</span>(SearchString)</span>
+<span id="cb1-12"><a href="#cb1-12"></a>  </span>
+<span id="cb1-13"><a href="#cb1-13"></a>  NestedList &lt;-<span class="st"> </span>df_fromJson<span class="op">$</span>content<span class="op">$</span>legs</span>
+<span id="cb1-14"><a href="#cb1-14"></a>  </span>
+<span id="cb1-15"><a href="#cb1-15"></a>  previous_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/flights_table.csv&quot;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16"></a>  </span>
+<span id="cb1-17"><a href="#cb1-17"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(NestedList)){</span>
+<span id="cb1-18"><a href="#cb1-18"></a>    </span>
+<span id="cb1-19"><a href="#cb1-19"></a>      t_list &lt;-<span class="st"> </span><span class="kw">list</span>()</span>
+<span id="cb1-20"><a href="#cb1-20"></a>      t_list[[<span class="st">&#39;Fare_Code&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;naturalKey&#39;</span>]]</span>
+<span id="cb1-21"><a href="#cb1-21"></a>      t_list[[<span class="st">&#39;Price&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;price&#39;</span>]][[<span class="st">&#39;exactPrice&#39;</span>]]</span>
+<span id="cb1-22"><a href="#cb1-22"></a>      t_list[[<span class="st">&#39;Currency&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;price&#39;</span>]][[<span class="st">&#39;currencyCode&#39;</span>]]</span>
+<span id="cb1-23"><a href="#cb1-23"></a>      t_list[[<span class="st">&#39;AirLineCompany&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;carrierSummary&#39;</span>]][[<span class="st">&#39;airlineName&#39;</span>]]</span>
+<span id="cb1-24"><a href="#cb1-24"></a>      t_list[[<span class="st">&#39;Qtd_Connections&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;stops&#39;</span>]]</span>
+<span id="cb1-25"><a href="#cb1-25"></a>      t_list[[<span class="st">&#39;Departure_Airport_City&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;departureLocation&#39;</span>]][[<span class="st">&#39;airportCity&#39;</span>]]</span>
+<span id="cb1-26"><a href="#cb1-26"></a>      t_list[[<span class="st">&#39;Departure_Airport_Code&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;departureLocation&#39;</span>]][[<span class="st">&#39;airportCode&#39;</span>]]</span>
+<span id="cb1-27"><a href="#cb1-27"></a>      t_list[[<span class="st">&#39;Arrival_Airport_City&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;arrivalLocation&#39;</span>]][[<span class="st">&#39;airportCity&#39;</span>]]</span>
+<span id="cb1-28"><a href="#cb1-28"></a>      t_list[[<span class="st">&#39;Arrival_Airport_Code&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;arrivalLocation&#39;</span>]][[<span class="st">&#39;airportCode&#39;</span>]]</span>
+<span id="cb1-29"><a href="#cb1-29"></a>      t_list[[<span class="st">&#39;Departure_Date&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;departureTime&#39;</span>]][[<span class="st">&#39;date&#39;</span>]]</span>
+<span id="cb1-30"><a href="#cb1-30"></a>      t_list[[<span class="st">&#39;Departure_Time&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;departureTime&#39;</span>]][[<span class="st">&#39;time&#39;</span>]]</span>
+<span id="cb1-31"><a href="#cb1-31"></a>      t_list[[<span class="st">&#39;Arrival_Date&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;arrivalTime&#39;</span>]][[<span class="st">&#39;date&#39;</span>]]</span>
+<span id="cb1-32"><a href="#cb1-32"></a>      t_list[[<span class="st">&#39;Arrival_Time&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;arrivalTime&#39;</span>]][[<span class="st">&#39;time&#39;</span>]]</span>
+<span id="cb1-33"><a href="#cb1-33"></a>      t_list[[<span class="st">&#39;Duration_Hours&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;duration&#39;</span>]][[<span class="st">&#39;hours&#39;</span>]]</span>
+<span id="cb1-34"><a href="#cb1-34"></a>      t_list[[<span class="st">&#39;Duration_Minutes&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;duration&#39;</span>]][[<span class="st">&#39;minutes&#39;</span>]]</span>
+<span id="cb1-35"><a href="#cb1-35"></a>      t_list[[<span class="st">&#39;run_time&#39;</span>]] &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb1-36"><a href="#cb1-36"></a>      </span>
+<span id="cb1-37"><a href="#cb1-37"></a>    df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(t_list)</span>
 <span id="cb1-38"><a href="#cb1-38"></a>    </span>
-<span id="cb1-39"><a href="#cb1-39"></a>    <span class="kw">return</span>(final_df)</span>
+<span id="cb1-39"><a href="#cb1-39"></a>    df &lt;-<span class="st"> </span><span class="kw">separate</span>(<span class="dt">data =</span> df, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;search_date&quot;</span>, <span class="st">&quot;search_time&quot;</span>), <span class="dt">col =</span> run_time , <span class="dt">sep =</span> <span class="st">&#39; &#39;</span>)</span>
 <span id="cb1-40"><a href="#cb1-40"></a>    </span>
-<span id="cb1-41"><a href="#cb1-41"></a>  }<span class="cf">else</span>{</span>
-<span id="cb1-42"><a href="#cb1-42"></a>  </span>
-<span id="cb1-43"><a href="#cb1-43"></a>  <span class="co">################################### SUMMARY AIRLINE FILTERS ##################################################</span></span>
-<span id="cb1-44"><a href="#cb1-44"></a>      </span>
-<span id="cb1-45"><a href="#cb1-45"></a>  previous_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/summary_byaircompany.csv&quot;</span>)</span>
-<span id="cb1-46"><a href="#cb1-46"></a>  tbf &lt;-<span class="st"> </span>df<span class="op">$</span>content<span class="op">$</span>summary<span class="op">$</span>filters<span class="op">$</span>airlineFilters</span>
-<span id="cb1-47"><a href="#cb1-47"></a>  tbf<span class="op">$</span>run_time &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
-<span id="cb1-48"><a href="#cb1-48"></a>  </span>
-<span id="cb1-49"><a href="#cb1-49"></a>  tbf =<span class="st"> </span><span class="kw">subset</span>(tbf, <span class="dt">select =</span> <span class="op">-</span><span class="kw">c</span>(filterCategory,formattedReferencePrice,formattedPrice))</span>
+<span id="cb1-41"><a href="#cb1-41"></a>    df<span class="op">$</span>remaining_days &lt;-<span class="st"> </span><span class="kw">as.integer</span>( <span class="kw">as.Date</span>(<span class="kw">as.character</span>(df<span class="op">$</span>Departure_Date), <span class="dt">format=</span><span class="st">&quot;%d/%m/%Y&quot;</span>) <span class="op">-</span></span>
+<span id="cb1-42"><a href="#cb1-42"></a><span class="st">                         </span><span class="kw">as.Date</span>(<span class="kw">as.character</span>(df<span class="op">$</span>search_date), <span class="dt">format=</span><span class="st">&quot;%Y-%m-%d&quot;</span>) )</span>
+<span id="cb1-43"><a href="#cb1-43"></a>    </span>
+<span id="cb1-44"><a href="#cb1-44"></a>    df<span class="op">$</span>search_day_period &lt;-<span class="st"> </span><span class="kw">with</span>(df, <span class="kw">ifelse</span>(<span class="kw">hour</span>(<span class="kw">hms</span>(search_time)) <span class="op">&gt;=</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw">hour</span>(<span class="kw">hms</span>(search_time)) <span class="op">&lt;=</span><span class="dv">11</span>, <span class="st">&quot;morning&quot;</span>,</span>
+<span id="cb1-45"><a href="#cb1-45"></a>                                        <span class="kw">ifelse</span>(<span class="kw">hour</span>(<span class="kw">hms</span>(search_time))<span class="op">&gt;</span><span class="dv">11</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw">hour</span>(<span class="kw">hms</span>(search_time))<span class="op">&lt;=</span><span class="dv">17</span>, <span class="st">&quot;afternoon&quot;</span>, <span class="st">&quot;night&quot;</span>)))</span>
+<span id="cb1-46"><a href="#cb1-46"></a>    </span>
+<span id="cb1-47"><a href="#cb1-47"></a>    df_total &lt;-<span class="st"> </span><span class="kw">rbind</span>(df_total,df)</span>
+<span id="cb1-48"><a href="#cb1-48"></a>    </span>
+<span id="cb1-49"><a href="#cb1-49"></a>  }</span>
 <span id="cb1-50"><a href="#cb1-50"></a>  </span>
-<span id="cb1-51"><a href="#cb1-51"></a>  tbf &lt;-<span class="st"> </span>tbf <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>( <span class="dt">Number_of_Flights =</span> totalCount,</span>
-<span id="cb1-52"><a href="#cb1-52"></a>                             <span class="dt">Min_Price =</span> priceAsDouble,</span>
-<span id="cb1-53"><a href="#cb1-53"></a>                             <span class="dt">Air_Line_Company =</span> filterName)</span>
-<span id="cb1-54"><a href="#cb1-54"></a>  tbf &lt;-<span class="st"> </span><span class="kw">separate</span>(<span class="dt">data =</span> tbf, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;search_date&quot;</span>, <span class="st">&quot;search_time&quot;</span>), <span class="dt">col =</span> run_time , <span class="dt">sep =</span> <span class="st">&#39; &#39;</span>)</span>
-<span id="cb1-55"><a href="#cb1-55"></a>  tbf<span class="op">$</span>search_day_period &lt;-<span class="st"> </span><span class="kw">with</span>(tbf,  <span class="kw">ifelse</span>(<span class="kw">hour</span>(<span class="kw">hms</span>(search_time)) <span class="op">&gt;=</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw">hour</span>(<span class="kw">hms</span>(search_time)) <span class="op">&lt;=</span><span class="dv">11</span>, <span class="st">&quot;morning&quot;</span>,</span>
-<span id="cb1-56"><a href="#cb1-56"></a>                                          <span class="kw">ifelse</span>(<span class="kw">hour</span>(<span class="kw">hms</span>(search_time))<span class="op">&gt;</span><span class="dv">11</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw">hour</span>(<span class="kw">hms</span>(search_time))<span class="op">&lt;=</span><span class="dv">17</span>, <span class="st">&quot;afternoon&quot;</span>, <span class="st">&quot;night&quot;</span>)))</span>
-<span id="cb1-57"><a href="#cb1-57"></a>      </span>
-<span id="cb1-58"><a href="#cb1-58"></a>  final_df &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">union</span>(tbf,previous_data)                      </span>
-<span id="cb1-59"><a href="#cb1-59"></a>  <span class="kw">write.table</span>(final_df , <span class="st">&quot;D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/summary_byaircompany.csv&quot;</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb1-60"><a href="#cb1-60"></a>  </span>
-<span id="cb1-61"><a href="#cb1-61"></a>  <span class="kw">return</span>(final_df)   </span>
-<span id="cb1-62"><a href="#cb1-62"></a>  </span>
-<span id="cb1-63"><a href="#cb1-63"></a>  }</span>
-<span id="cb1-64"><a href="#cb1-64"></a></span>
-<span id="cb1-65"><a href="#cb1-65"></a>}</span>
-<span id="cb1-66"><a href="#cb1-66"></a></span>
-<span id="cb1-67"><a href="#cb1-67"></a>final_summary &lt;-<span class="st"> </span><span class="kw">get_summary_flights</span>(SearchString, summary_type)</span>
-<span id="cb1-68"><a href="#cb1-68"></a></span>
-<span id="cb1-69"><a href="#cb1-69"></a></span>
-<span id="cb1-70"><a href="#cb1-70"></a><span class="co"># Retrieve_Full_DataSet ---------------------------------------------------</span></span>
-<span id="cb1-71"><a href="#cb1-71"></a></span>
-<span id="cb1-72"><a href="#cb1-72"></a></span>
-<span id="cb1-73"><a href="#cb1-73"></a>get_flights_table &lt;-<span class="st"> </span><span class="cf">function</span>(SearchString){</span>
-<span id="cb1-74"><a href="#cb1-74"></a>  </span>
-<span id="cb1-75"><a href="#cb1-75"></a>  df_total =<span class="st"> </span><span class="kw">data.frame</span>()</span>
-<span id="cb1-76"><a href="#cb1-76"></a>  </span>
-<span id="cb1-77"><a href="#cb1-77"></a>  df_fromJson &lt;-<span class="st"> </span><span class="kw">fromJSON</span>(SearchString)</span>
-<span id="cb1-78"><a href="#cb1-78"></a>  </span>
-<span id="cb1-79"><a href="#cb1-79"></a>  NestedList &lt;-<span class="st"> </span>df_fromJson<span class="op">$</span>content<span class="op">$</span>legs</span>
-<span id="cb1-80"><a href="#cb1-80"></a>  </span>
-<span id="cb1-81"><a href="#cb1-81"></a>  previous_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/flights_table.csv&quot;</span>)</span>
-<span id="cb1-82"><a href="#cb1-82"></a>  </span>
-<span id="cb1-83"><a href="#cb1-83"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(NestedList)){</span>
-<span id="cb1-84"><a href="#cb1-84"></a>    </span>
-<span id="cb1-85"><a href="#cb1-85"></a>      t_list &lt;-<span class="st"> </span><span class="kw">list</span>()</span>
-<span id="cb1-86"><a href="#cb1-86"></a>      t_list[[<span class="st">&#39;Fare_Code&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;naturalKey&#39;</span>]]</span>
-<span id="cb1-87"><a href="#cb1-87"></a>      t_list[[<span class="st">&#39;Price&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;price&#39;</span>]][[<span class="st">&#39;exactPrice&#39;</span>]]</span>
-<span id="cb1-88"><a href="#cb1-88"></a>      t_list[[<span class="st">&#39;Currency&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;price&#39;</span>]][[<span class="st">&#39;currencyCode&#39;</span>]]</span>
-<span id="cb1-89"><a href="#cb1-89"></a>      t_list[[<span class="st">&#39;AirLineCompany&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;carrierSummary&#39;</span>]][[<span class="st">&#39;airlineName&#39;</span>]]</span>
-<span id="cb1-90"><a href="#cb1-90"></a>      t_list[[<span class="st">&#39;Qtd_Connections&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;stops&#39;</span>]]</span>
-<span id="cb1-91"><a href="#cb1-91"></a>      t_list[[<span class="st">&#39;Departure_Airport_City&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;departureLocation&#39;</span>]][[<span class="st">&#39;airportCity&#39;</span>]]</span>
-<span id="cb1-92"><a href="#cb1-92"></a>      t_list[[<span class="st">&#39;Departure_Airport_Code&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;departureLocation&#39;</span>]][[<span class="st">&#39;airportCode&#39;</span>]]</span>
-<span id="cb1-93"><a href="#cb1-93"></a>      t_list[[<span class="st">&#39;Arrival_Airport_City&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;arrivalLocation&#39;</span>]][[<span class="st">&#39;airportCity&#39;</span>]]</span>
-<span id="cb1-94"><a href="#cb1-94"></a>      t_list[[<span class="st">&#39;Arrival_Airport_Code&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;arrivalLocation&#39;</span>]][[<span class="st">&#39;airportCode&#39;</span>]]</span>
-<span id="cb1-95"><a href="#cb1-95"></a>      t_list[[<span class="st">&#39;Departure_Date&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;departureTime&#39;</span>]][[<span class="st">&#39;date&#39;</span>]]</span>
-<span id="cb1-96"><a href="#cb1-96"></a>      t_list[[<span class="st">&#39;Departure_Time&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;departureTime&#39;</span>]][[<span class="st">&#39;time&#39;</span>]]</span>
-<span id="cb1-97"><a href="#cb1-97"></a>      t_list[[<span class="st">&#39;Arrival_Date&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;arrivalTime&#39;</span>]][[<span class="st">&#39;date&#39;</span>]]</span>
-<span id="cb1-98"><a href="#cb1-98"></a>      t_list[[<span class="st">&#39;Arrival_Time&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;arrivalTime&#39;</span>]][[<span class="st">&#39;time&#39;</span>]]</span>
-<span id="cb1-99"><a href="#cb1-99"></a>      t_list[[<span class="st">&#39;Duration_Hours&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;duration&#39;</span>]][[<span class="st">&#39;hours&#39;</span>]]</span>
-<span id="cb1-100"><a href="#cb1-100"></a>      t_list[[<span class="st">&#39;Duration_Minutes&#39;</span>]] &lt;-<span class="st"> </span>NestedList[[i]][[<span class="st">&#39;duration&#39;</span>]][[<span class="st">&#39;minutes&#39;</span>]]</span>
-<span id="cb1-101"><a href="#cb1-101"></a>      t_list[[<span class="st">&#39;run_time&#39;</span>]] &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
-<span id="cb1-102"><a href="#cb1-102"></a>      </span>
-<span id="cb1-103"><a href="#cb1-103"></a>    df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(t_list)</span>
-<span id="cb1-104"><a href="#cb1-104"></a>    </span>
-<span id="cb1-105"><a href="#cb1-105"></a>    df &lt;-<span class="st"> </span><span class="kw">separate</span>(<span class="dt">data =</span> df, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;search_date&quot;</span>, <span class="st">&quot;search_time&quot;</span>), <span class="dt">col =</span> run_time , <span class="dt">sep =</span> <span class="st">&#39; &#39;</span>)</span>
-<span id="cb1-106"><a href="#cb1-106"></a>    </span>
-<span id="cb1-107"><a href="#cb1-107"></a>    df<span class="op">$</span>remaining_days &lt;-<span class="st"> </span><span class="kw">as.integer</span>( <span class="kw">as.Date</span>(<span class="kw">as.character</span>(df<span class="op">$</span>Departure_Date), <span class="dt">format=</span><span class="st">&quot;%d/%m/%Y&quot;</span>) <span class="op">-</span></span>
-<span id="cb1-108"><a href="#cb1-108"></a><span class="st">                         </span><span class="kw">as.Date</span>(<span class="kw">as.character</span>(df<span class="op">$</span>search_date), <span class="dt">format=</span><span class="st">&quot;%Y-%m-%d&quot;</span>) )</span>
-<span id="cb1-109"><a href="#cb1-109"></a>    </span>
-<span id="cb1-110"><a href="#cb1-110"></a>    df<span class="op">$</span>search_day_period &lt;-<span class="st"> </span><span class="kw">with</span>(df, <span class="kw">ifelse</span>(<span class="kw">hour</span>(<span class="kw">hms</span>(search_time)) <span class="op">&gt;=</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw">hour</span>(<span class="kw">hms</span>(search_time)) <span class="op">&lt;=</span><span class="dv">11</span>, <span class="st">&quot;morning&quot;</span>,</span>
-<span id="cb1-111"><a href="#cb1-111"></a>                                        <span class="kw">ifelse</span>(<span class="kw">hour</span>(<span class="kw">hms</span>(search_time))<span class="op">&gt;</span><span class="dv">11</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw">hour</span>(<span class="kw">hms</span>(search_time))<span class="op">&lt;=</span><span class="dv">17</span>, <span class="st">&quot;afternoon&quot;</span>, <span class="st">&quot;night&quot;</span>)))</span>
-<span id="cb1-112"><a href="#cb1-112"></a>    </span>
-<span id="cb1-113"><a href="#cb1-113"></a>    df_total &lt;-<span class="st"> </span><span class="kw">rbind</span>(df_total,df)</span>
-<span id="cb1-114"><a href="#cb1-114"></a>    </span>
-<span id="cb1-115"><a href="#cb1-115"></a>  }</span>
-<span id="cb1-116"><a href="#cb1-116"></a>  </span>
-<span id="cb1-117"><a href="#cb1-117"></a>  flights_df &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">union</span>(df_total,previous_data) </span>
-<span id="cb1-118"><a href="#cb1-118"></a>  </span>
-<span id="cb1-119"><a href="#cb1-119"></a>  <span class="kw">write.csv</span>(flights_df, <span class="st">&#39;D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/flights_table.csv&#39;</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span> )</span>
-<span id="cb1-120"><a href="#cb1-120"></a>  </span>
-<span id="cb1-121"><a href="#cb1-121"></a>  <span class="kw">return</span>(flights_df)</span>
-<span id="cb1-122"><a href="#cb1-122"></a>  </span>
-<span id="cb1-123"><a href="#cb1-123"></a>}</span>
-<span id="cb1-124"><a href="#cb1-124"></a> </span>
-<span id="cb1-125"><a href="#cb1-125"></a>flights_df &lt;-<span class="st"> </span><span class="kw">get_flights_table</span>(SearchString)</span></code></pre></div>
+<span id="cb1-51"><a href="#cb1-51"></a>  flights_df &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">union</span>(df_total,previous_data) </span>
+<span id="cb1-52"><a href="#cb1-52"></a>  </span>
+<span id="cb1-53"><a href="#cb1-53"></a>  <span class="kw">write.csv</span>(flights_df, <span class="st">&#39;D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/flights_table.csv&#39;</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span> )</span>
+<span id="cb1-54"><a href="#cb1-54"></a>  </span>
+<span id="cb1-55"><a href="#cb1-55"></a>  <span class="kw">return</span>(flights_df)</span>
+<span id="cb1-56"><a href="#cb1-56"></a>  </span>
+<span id="cb1-57"><a href="#cb1-57"></a>}</span>
+<span id="cb1-58"><a href="#cb1-58"></a> </span>
+<span id="cb1-59"><a href="#cb1-59"></a>flights_df &lt;-<span class="st"> </span><span class="kw">get_flights_table</span>(SearchString)</span></code></pre></div>
 </div>
 </div>
 </div>
 <div id="the-datasets" class="section level1">
 <h1>The Datasets</h1>
-<p>Once you finished running the codes you will end up having three/two datasets, one that contains the general information regarding the flights and the other one that contains the summary statistics based on the filter.</p>
-<p>Both of datasets are saved and appended to csv’s files to store the previous generated information.</p>
-<p>What is important to mention is the the fact that both of the datasets will have columns that define the precise moment when the information was web scrapped, with the exactly period of the day and the remaining days until the flight departure.</p>
+<p>Once you finished running the codes you will end up having the general flights dataset that contains the general information regarding each one of the flights.</p>
+<p>What is important to mention is the the fact that the dataset will have columns that define the precise moment when the information was web scrapped, with the exactly period of the day and the remaining days until the flight departure.</p>
 <p>Please find the flight dataset example bellow:</p>
-<pre><code>##                           Fare_Code   Price Currency         AirLineCompany
-## 1  0b247cdb4d777cc15162f54cce0ed2bc 1748.56      BRL   LATAM Airlines Group
-## 2  bd292b97be6669e1ff2362522efa09e6 2450.47      BRL   LATAM Airlines Group
-## 3  907a3b0ff35df9491eaf88c9a5d7688d 2450.47      BRL   LATAM Airlines Group
-## 4  6592c8c1b5f27816f83f4b8d3facc004  853.16      BRL GOL Linhas Aereas S.A.
-## 5  a7bfe5d172c039981a7de03d0fee4e76 2450.47      BRL   LATAM Airlines Group
-## 6  95fbaa6db4bca4eb8aa41ddbef53f510 1810.16      BRL   LATAM Airlines Group
-## 7  4e5d295393559721a65d8ea48d24be00 1810.16      BRL   LATAM Airlines Group
-## 8  85a3d852cf7bd4b53f88ee97c0ed8474 2450.47      BRL   LATAM Airlines Group
-## 9  22f0ec59dd32cbc6fc260ea1e2a603d2 2450.47      BRL   LATAM Airlines Group
-## 10 813efcbe26e8e50716a8b67dec5c1955 2560.47      BRL   LATAM Airlines Group
-##    Qtd_Connections Departure_Airport_City Departure_Airport_Code
-## 1                1               Brasília                    BSB
-## 2                1               Brasília                    BSB
-## 3                1               Brasília                    BSB
-## 4                0               Brasília                    BSB
-## 5                2               Brasília                    BSB
-## 6                1               Brasília                    BSB
-## 7                1               Brasília                    BSB
-## 8                1               Brasília                    BSB
-## 9                2               Brasília                    BSB
-## 10               2               Brasília                    BSB
-##    Arrival_Airport_City Arrival_Airport_Code Departure_Date Departure_Time
-## 1        Rio de Janeiro                  GIG     28/12/2020          11h50
-## 2        Rio de Janeiro                  SDU     28/12/2020          15h30
-## 3        Rio de Janeiro                  SDU     28/12/2020          10h25
-## 4        Rio de Janeiro                  SDU     28/12/2020          19h15
-## 5        Rio de Janeiro                  SDU     28/12/2020          11h50
-## 6        Rio de Janeiro                  SDU     28/12/2020           8h55
-## 7        Rio de Janeiro                  SDU     28/12/2020          12h35
-## 8        Rio de Janeiro                  SDU     28/12/2020          11h00
-## 9        Rio de Janeiro                  SDU     28/12/2020          12h35
-## 10       Rio de Janeiro                  SDU     28/12/2020           8h40
-##    Arrival_Date Arrival_Time Duration_Hours Duration_Minutes search_date
-## 1    28/12/2020        19h25              7               35  2020-12-14
-## 2    28/12/2020        19h30              4                0  2020-12-14
-## 3    28/12/2020        15h10              4               45  2020-12-14
-## 4    28/12/2020        21h00              1               45  2020-12-14
-## 5    28/12/2020        19h45              7               55  2020-12-14
-## 6    28/12/2020        12h50              3               55  2020-12-14
-## 7    28/12/2020        19h30              6               55  2020-12-14
-## 8    28/12/2020        16h40              5               40  2020-12-14
-## 9    28/12/2020        21h50              9               15  2020-12-14
-## 10   28/12/2020        16h40              8                0  2020-12-14
-##    search_time remaining_days search_day_period
-## 1     18:13:52             14             night
-## 2     18:13:52             14             night
-## 3     18:13:52             14             night
-## 4     18:13:52             14             night
-## 5     18:13:52             14             night
-## 6     18:13:52             14             night
-## 7     18:13:52             14             night
-## 8     18:13:52             14             night
-## 9     18:13:52             14             night
-## 10    18:13:52             14             night</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col width="10%"></col>
+<col width="2%"></col>
+<col width="2%"></col>
+<col width="7%"></col>
+<col width="4%"></col>
+<col width="7%"></col>
+<col width="7%"></col>
+<col width="6%"></col>
+<col width="6%"></col>
+<col width="4%"></col>
+<col width="4%"></col>
+<col width="4%"></col>
+<col width="4%"></col>
+<col width="4%"></col>
+<col width="5%"></col>
+<col width="3%"></col>
+<col width="3%"></col>
+<col width="4%"></col>
+<col width="5%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Fare_Code</th>
+<th align="right">Price</th>
+<th align="left">Currency</th>
+<th align="left">AirLineCompany</th>
+<th align="right">Qtd_Connections</th>
+<th align="left">Departure_Airport_City</th>
+<th align="left">Departure_Airport_Code</th>
+<th align="left">Arrival_Airport_City</th>
+<th align="left">Arrival_Airport_Code</th>
+<th align="left">Departure_Date</th>
+<th align="left">Departure_Time</th>
+<th align="left">Arrival_Date</th>
+<th align="left">Arrival_Time</th>
+<th align="right">Duration_Hours</th>
+<th align="right">Duration_Minutes</th>
+<th align="left">search_date</th>
+<th align="left">search_time</th>
+<th align="right">remaining_days</th>
+<th align="left">search_day_period</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">0b247cdb4d777cc15162f54cce0ed2bc</td>
+<td align="right">1748.56</td>
+<td align="left">BRL</td>
+<td align="left">LATAM Airlines Group</td>
+<td align="right">1</td>
+<td align="left">Brasília</td>
+<td align="left">BSB</td>
+<td align="left">Rio de Janeiro</td>
+<td align="left">GIG</td>
+<td align="left">28/12/2020</td>
+<td align="left">11h50</td>
+<td align="left">28/12/2020</td>
+<td align="left">19h25</td>
+<td align="right">7</td>
+<td align="right">35</td>
+<td align="left">2020-12-14</td>
+<td align="left">20:33:07</td>
+<td align="right">14</td>
+<td align="left">night</td>
+</tr>
+<tr class="even">
+<td align="left">bd292b97be6669e1ff2362522efa09e6</td>
+<td align="right">2450.47</td>
+<td align="left">BRL</td>
+<td align="left">LATAM Airlines Group</td>
+<td align="right">1</td>
+<td align="left">Brasília</td>
+<td align="left">BSB</td>
+<td align="left">Rio de Janeiro</td>
+<td align="left">SDU</td>
+<td align="left">28/12/2020</td>
+<td align="left">15h30</td>
+<td align="left">28/12/2020</td>
+<td align="left">19h30</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="left">2020-12-14</td>
+<td align="left">20:33:07</td>
+<td align="right">14</td>
+<td align="left">night</td>
+</tr>
+<tr class="odd">
+<td align="left">907a3b0ff35df9491eaf88c9a5d7688d</td>
+<td align="right">2450.47</td>
+<td align="left">BRL</td>
+<td align="left">LATAM Airlines Group</td>
+<td align="right">1</td>
+<td align="left">Brasília</td>
+<td align="left">BSB</td>
+<td align="left">Rio de Janeiro</td>
+<td align="left">SDU</td>
+<td align="left">28/12/2020</td>
+<td align="left">10h25</td>
+<td align="left">28/12/2020</td>
+<td align="left">15h10</td>
+<td align="right">4</td>
+<td align="right">45</td>
+<td align="left">2020-12-14</td>
+<td align="left">20:33:07</td>
+<td align="right">14</td>
+<td align="left">night</td>
+</tr>
+<tr class="even">
+<td align="left">6592c8c1b5f27816f83f4b8d3facc004</td>
+<td align="right">1306.36</td>
+<td align="left">BRL</td>
+<td align="left">GOL Linhas Aereas S.A.</td>
+<td align="right">0</td>
+<td align="left">Brasília</td>
+<td align="left">BSB</td>
+<td align="left">Rio de Janeiro</td>
+<td align="left">SDU</td>
+<td align="left">28/12/2020</td>
+<td align="left">19h15</td>
+<td align="left">28/12/2020</td>
+<td align="left">21h00</td>
+<td align="right">1</td>
+<td align="right">45</td>
+<td align="left">2020-12-14</td>
+<td align="left">20:33:07</td>
+<td align="right">14</td>
+<td align="left">night</td>
+</tr>
+<tr class="odd">
+<td align="left">a7bfe5d172c039981a7de03d0fee4e76</td>
+<td align="right">2450.47</td>
+<td align="left">BRL</td>
+<td align="left">LATAM Airlines Group</td>
+<td align="right">2</td>
+<td align="left">Brasília</td>
+<td align="left">BSB</td>
+<td align="left">Rio de Janeiro</td>
+<td align="left">SDU</td>
+<td align="left">28/12/2020</td>
+<td align="left">11h50</td>
+<td align="left">28/12/2020</td>
+<td align="left">19h45</td>
+<td align="right">7</td>
+<td align="right">55</td>
+<td align="left">2020-12-14</td>
+<td align="left">20:33:07</td>
+<td align="right">14</td>
+<td align="left">night</td>
+</tr>
+<tr class="even">
+<td align="left">95fbaa6db4bca4eb8aa41ddbef53f510</td>
+<td align="right">1810.16</td>
+<td align="left">BRL</td>
+<td align="left">LATAM Airlines Group</td>
+<td align="right">1</td>
+<td align="left">Brasília</td>
+<td align="left">BSB</td>
+<td align="left">Rio de Janeiro</td>
+<td align="left">SDU</td>
+<td align="left">28/12/2020</td>
+<td align="left">8h55</td>
+<td align="left">28/12/2020</td>
+<td align="left">12h50</td>
+<td align="right">3</td>
+<td align="right">55</td>
+<td align="left">2020-12-14</td>
+<td align="left">20:33:07</td>
+<td align="right">14</td>
+<td align="left">night</td>
+</tr>
+<tr class="odd">
+<td align="left">4e5d295393559721a65d8ea48d24be00</td>
+<td align="right">1810.16</td>
+<td align="left">BRL</td>
+<td align="left">LATAM Airlines Group</td>
+<td align="right">1</td>
+<td align="left">Brasília</td>
+<td align="left">BSB</td>
+<td align="left">Rio de Janeiro</td>
+<td align="left">SDU</td>
+<td align="left">28/12/2020</td>
+<td align="left">12h35</td>
+<td align="left">28/12/2020</td>
+<td align="left">19h30</td>
+<td align="right">6</td>
+<td align="right">55</td>
+<td align="left">2020-12-14</td>
+<td align="left">20:33:07</td>
+<td align="right">14</td>
+<td align="left">night</td>
+</tr>
+<tr class="even">
+<td align="left">85a3d852cf7bd4b53f88ee97c0ed8474</td>
+<td align="right">2450.47</td>
+<td align="left">BRL</td>
+<td align="left">LATAM Airlines Group</td>
+<td align="right">1</td>
+<td align="left">Brasília</td>
+<td align="left">BSB</td>
+<td align="left">Rio de Janeiro</td>
+<td align="left">SDU</td>
+<td align="left">28/12/2020</td>
+<td align="left">11h00</td>
+<td align="left">28/12/2020</td>
+<td align="left">16h40</td>
+<td align="right">5</td>
+<td align="right">40</td>
+<td align="left">2020-12-14</td>
+<td align="left">20:33:07</td>
+<td align="right">14</td>
+<td align="left">night</td>
+</tr>
+<tr class="odd">
+<td align="left">813efcbe26e8e50716a8b67dec5c1955</td>
+<td align="right">2560.47</td>
+<td align="left">BRL</td>
+<td align="left">LATAM Airlines Group</td>
+<td align="right">2</td>
+<td align="left">Brasília</td>
+<td align="left">BSB</td>
+<td align="left">Rio de Janeiro</td>
+<td align="left">SDU</td>
+<td align="left">28/12/2020</td>
+<td align="left">8h40</td>
+<td align="left">28/12/2020</td>
+<td align="left">16h40</td>
+<td align="right">8</td>
+<td align="right">0</td>
+<td align="left">2020-12-14</td>
+<td align="left">20:33:07</td>
+<td align="right">14</td>
+<td align="left">night</td>
+</tr>
+<tr class="even">
+<td align="left">d75521707203dfcaae45a148a5addd52</td>
+<td align="right">2450.47</td>
+<td align="left">BRL</td>
+<td align="left">LATAM Airlines Group</td>
+<td align="right">2</td>
+<td align="left">Brasília</td>
+<td align="left">BSB</td>
+<td align="left">Rio de Janeiro</td>
+<td align="left">SDU</td>
+<td align="left">28/12/2020</td>
+<td align="left">15h30</td>
+<td align="left">28/12/2020</td>
+<td align="left">22h25</td>
+<td align="right">6</td>
+<td align="right">55</td>
+<td align="left">2020-12-14</td>
+<td align="left">20:33:07</td>
+<td align="right">14</td>
+<td align="left">night</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="the-analysis" class="section level1">
 <h1>THE ANALYSIS</h1>
-<p>After retriving the datasets, it´s time for the analysis. The possible questions are detailed bellow:</p>
+<p>After retrieving the dataset, it´s time for the analysis. The possible questions are detailed bellow:</p>
 <p>Is it better to buy flights during the morning, afternoon or at night? Do the prices change?<br />
 Is there any correlation between the days missing to the flight and their price?</p>
-<p>To analyse the following you can you use the following codes:</p>
+<p>To analyze the following you can you use the following codes:</p>
 <pre><code>## `summarise()` regrouping output by &#39;search_day_period&#39; (override with `.groups` argument)</code></pre>
 <table>
 <colgroup>
@@ -522,30 +656,30 @@ Is there any correlation between the days missing to the flight and their price?
 <tr class="odd">
 <td align="left">night</td>
 <td align="left">Azul</td>
-<td align="right">874.7657</td>
-<td align="right">335.47</td>
-<td align="right">692.4751</td>
-<td align="right">1176.040</td>
+<td align="right">1282.6246</td>
+<td align="right">1758.46</td>
+<td align="right">670.8259</td>
+<td align="right">1422.990</td>
 <td align="right">335.47</td>
 <td align="right">1758.46</td>
 </tr>
 <tr class="even">
 <td align="left">night</td>
 <td align="left">GOL Linhas Aereas S.A.</td>
-<td align="right">1250.8292</td>
-<td align="right">1207.36</td>
-<td align="right">491.2697</td>
-<td align="right">597.300</td>
+<td align="right">1408.6213</td>
+<td align="right">1378.41</td>
+<td align="right">501.4133</td>
+<td align="right">468.600</td>
 <td align="right">428.47</td>
 <td align="right">2231.46</td>
 </tr>
 <tr class="odd">
 <td align="left">night</td>
 <td align="left">LATAM Airlines Group</td>
-<td align="right">2109.8396</td>
+<td align="right">2248.5159</td>
 <td align="right">2450.47</td>
-<td align="right">656.7875</td>
-<td align="right">640.310</td>
+<td align="right">485.5176</td>
+<td align="right">371.910</td>
 <td align="right">286.47</td>
 <td align="right">2560.47</td>
 </tr>
@@ -567,9 +701,9 @@ Is there any correlation between the days missing to the flight and their price?
 <tbody>
 <tr class="odd">
 <td align="right">14</td>
-<td align="right">2253.634</td>
+<td align="right">2257.738</td>
 <td align="right">2450.470</td>
-<td align="right">397.4624</td>
+<td align="right">390.9761</td>
 <td align="right">371.910</td>
 <td align="right">853.16</td>
 <td align="right">2560.47</td>
@@ -720,17 +854,15 @@ Is there any correlation between the days missing to the flight and their price?
 </tr>
 </tbody>
 </table>
-<p>Now that the summary statistics are done, it’s time to generate the possible correlations</p>
+<p>Now that the summary statistics are done, it’s time to generate the possible correlations (remaining_days ~ min(price), remaining_days ~ mean(price) )</p>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
 <p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqAAAAHgCAMAAABNUi8GAAAAzFBMVEUAAAAAACsAAFUAAP8AK4AAVaorAAArACsrAFUrgNQzMzM9PdZNTU1NTWtNTYhNa6ZNiMRVAABVgIBVqv9rTU1rTWtrTYhra4hra6ZrpuGAKwCAgCuAgFWAqoCA1KqA1P+ITU2ITWuITYiIa02Ia6aIxP+ma02ma2uma4imiE2mxKam4eGm4f+qVQCq/9Sq///EiE3E///KysrUgCvU///W1tbhpmvh///r6+v/AAD/qlX/xIj/1ID/1NT/4ab//6r//8T//9T//+H////ajoxoAAAACXBIWXMAAA7DAAAOwwHHb6hkAAATiklEQVR4nO2dC1vbSJaG6WaSycVpkkk6GzIzm8sOzO4MswlOB6YD6zjo//+nlWyZi5FdJdXtO/L7PXksbNDrSp2Xo5JsYK8iRDh7pQdAyLYgKJEOghLpICiRDoIS6SAokc4wQf8dltD9c1LBpsNuoyIo2OJYBAUrjUVQsNJYBAUrjUVQsNJYBAUrjUVQsNJYBAUrjUVQsNJYBAUrjUVQsNJYBAUrjUVQsNJYBAUrjUVQsNJYBAUrjS0i6P7+ftDAhsdUbcA6qKkE3d/3MBRBwbqoCAq2OBZBwUpjWYOClcZyFg9WGougYKWxCApWGougYKWxCApWGougYKWxCApWGougYKWxCApWGougYKWxCApWGougYKWxCApWGougYKWxCApWGougYKWxCApWGougYKWxCApWGougYKWxCApWGougYKWxCApWGhso6OzV5JfTqpq/nxycX28QFGwWqlvQ+YeT6uzg/Or4qDp7XrUbBAWbh+oWdPbmvJp/PK3/VbPXqw2Cgs1D9e6gC08/nLSb+vEndTbuREjcbFmDLledFwcLM9tN+6mE3zlqVLDpsIGH+F9PqotfTu91UAQFm4HqFrTtmaxBwWoK2nbQq+PD5Vn8IWfxYPNR3YJWF5PJsxOug4JNhuWVJLDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQFK41FULDSWAQF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" /><!-- --></p>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
-<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
-<p>There wasn’t enough time to generate a sufficient amount of data in order to really answer those analytics questions. In order to generate the ideas of the graphs, the data was randomly generated to show the structure about what’s to be evaluated. The project is easy to replicate, you can use different dates and locations, and also and will definitely provide enough information in the future to analyze not only the best ticket buying option, but also how do the air companies regulate their price search data.</p>
+<p>There wasn’t enough time to retrieve a sufficient amount of data in order to really answer those analytics questions. In order to create the ideas of the graphs, the data was randomly to show the structure about what’s to be evaluated. The project is easy to replicate, you can use different dates and locations, and also and will definitely provide enough information in the future to analyze not only the best ticket buying option, but also how do the air companies regulate their price search data.</p>
 </div>
     </section>
   </div>
