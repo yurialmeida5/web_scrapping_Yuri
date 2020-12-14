@@ -1,3 +1,18 @@
+---
+title: "Web-Scrapping Final Project 2020"
+subtitle: "Extract Flight Data from Expedia Website - Get Back to Budapest" 
+date: 2020-12-13
+author: "Yuri Almeida Cunha"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+---
+
+```{r, echo= FALSE , include = FALSE }
+
+#Load Necessary Packages and Clean the Enviroment 
+
 library(rvest)
 library(jsonlite)
 library(data.table)
@@ -6,13 +21,61 @@ library(tidyverse)
 library(utils)
 library(survPen)
 library(lubridate)
-library(purrr)
+library(knitr)
+
 
 rm(list=ls())
 
-# Important, due to a connection limitation it`s important to refresh (copy and paste) the JSON link every 3 hours
 
-SearchString <- "https://www.expedia.com.br/Flight-Search-Paging?c=1ed28b8c-c03b-4142-be44-c0862629c19d&is=1&sp=asc&cz=200&cn=0"
+```
+
+
+# Introduction
+
+On the following project, It was collected flight information from the Brasilia Airport (BSB) to the Rio de Janeiro (GIG/SDU) in order to be able to decide when and what period of the day to buy a specific set of tickets. With that, the project tries verify what is the correlation between the searched flight prices based on the moment of the day and the remaining days until the trip. 
+
+
+# Steps to Collect the Data 
+
+## Get to the Website and Define your search terms
+
+Go the the website > https://www.expedia.com.br > once you reach the menu flights. Choose the following configuration:  
+
+From: Brasilia (BSB)  
+To: Rio de Janeiro (All Airports)
+Date: 07/01/2021  
+One Way Flight
+1 Passanger  
+
+Once your done, you will be redirected to the page that contains the amount of dedicated flights by company that operates the following path and destination. 
+
+## Retrieve the JSON Link
+
+After selecting the search terms and run the command on the website, a list of flight possibilities will pop up. Open the inspector and check the following URL:  
+
+https://www.expedia.com.br/Flight-Search-Paging?c=c475148f-c55d-4539-b37f-db1b8ed1ba20&is=1&sp=asc&cz=200&cn=0
+
+This is the JSON link that contains most of the necessary information regarding the flights. It's important to take the right one. On the page will find 2 of them, the first one is related to the query parameters used for the search and the second one it's the one that contains the flight information.
+
+## Add the URL and define the summary parameter 
+
+On the webscrapping code there are only two parameters and functions.  
+
+### Functions
+
+The first function is the one the retrieve the summaries based on the filters on the left of the page. The ones selected were the filter by Connection and the one by AirCompany.  
+The second function is the one that retrieves the entire flight information dataset, where you can visualize the most important information regarding all flights.
+
+### Parameters
+
+The first parameter is the URL, after copying the URL link, you should replace it on the variable SearchString on the code.  
+The second parameter is the one that decides what type of summary statistics you will end up. By default, it was selected the AirCompany one.
+
+PS: Due to a connection limitation it`s important to refresh (copy and paste) the JSON link every 3 hours, you may get disconnected and the following won't retrieve the necessary information.
+
+```{r , echo = TRUE}
+
+SearchString <- "https://www.expedia.com.br/Flight-Search-Paging?c=cf4b1814-5f95-4785-a03b-406cb9315e66&is=1&sp=asc&cz=200&cn=0"
 summary_type <- 'Connection'
 
 
@@ -34,10 +97,12 @@ get_summary_flights <- function(SearchString, summary_type = 'AirCompany'){
   
     ################## FILTER CONNECTION SUMMARY ######################
     
-    previous_data <- read.csv("Final_Project/Datasets/summary_byconnection.csv") 
+    previous_data <- read.csv("D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/summary_byconnection.csv") 
     tbf <- df$content$summary$filters$stopFilters  
     tbf$run_time <- Sys.time()
+    
     tbf = subset(tbf, select = -c(filterCategory,formattedReferencePrice,formattedPrice))
+    
     tbf <- tbf %>% rename( Number_of_Flights = totalCount,
                            Min_Price = priceAsDouble,
                            Qtd_connections = filterName)
@@ -46,7 +111,7 @@ get_summary_flights <- function(SearchString, summary_type = 'AirCompany'){
     tbf$search_day_period <- with(tbf,  ifelse(hour(hms(search_time)) >= 5 & hour(hms(search_time)) <=11, "morning",
                                         ifelse(hour(hms(search_time))>11 & hour(hms(search_time))<=17, "afternoon", "night")))
     final_df <- dplyr::union(tbf,previous_data)                      
-    write.table(final_df , "Final_Project/Datasets/summary_byconnection.csv", row.names = FALSE)
+    write.table(final_df , "D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/summary_byconnection.csv", row.names = FALSE)
     
     return(final_df)
     
@@ -54,10 +119,12 @@ get_summary_flights <- function(SearchString, summary_type = 'AirCompany'){
   
   ################################### SUMMARY AIRLINE FILTERS ##################################################
       
-  previous_data <- read.csv("Final_Project/Datasets/summary_byaircompany.csv")
+  previous_data <- read.csv("D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/summary_byaircompany.csv")
   tbf <- df$content$summary$filters$airlineFilters
   tbf$run_time <- Sys.time()
+  
   tbf = subset(tbf, select = -c(filterCategory,formattedReferencePrice,formattedPrice))
+  
   tbf <- tbf %>% rename( Number_of_Flights = totalCount,
                              Min_Price = priceAsDouble,
                              Air_Line_Company = filterName)
@@ -66,7 +133,7 @@ get_summary_flights <- function(SearchString, summary_type = 'AirCompany'){
                                           ifelse(hour(hms(search_time))>11 & hour(hms(search_time))<=17, "afternoon", "night")))
       
   final_df <- dplyr::union(tbf,previous_data)                      
-  write.table(final_df , "Final_Project/Datasets/summary_byaircompany.csv", row.names = FALSE)
+  write.table(final_df , "D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/summary_byaircompany.csv", row.names = FALSE)
   
   return(final_df)   
   
@@ -74,7 +141,7 @@ get_summary_flights <- function(SearchString, summary_type = 'AirCompany'){
 
 }
 
-tbf <- get_summary_flights(SearchString, summary_type)
+final_summary <- get_summary_flights(SearchString, summary_type)
 
 
 # Retrieve_Full_DataSet ---------------------------------------------------
@@ -88,7 +155,7 @@ get_flights_table <- function(SearchString){
   
   NestedList <- df_fromJson$content$legs
   
-  previous_data <- read.csv("Final_Project/Datasets/flights_table.csv")
+  previous_data <- read.csv("D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/flights_table.csv")
   
   for (i in 1:length(NestedList)){
     
@@ -126,7 +193,8 @@ get_flights_table <- function(SearchString){
   
   flights_df <- dplyr::union(df_total,previous_data) 
   
-  write.csv(flights_df, 'Final_Project/Datasets/flights_table.csv', row.names = FALSE )
+  write.csv(flights_df, 'D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/flights_table.csv', row.names = FALSE )
+  
   return(flights_df)
   
 }
@@ -134,20 +202,47 @@ get_flights_table <- function(SearchString){
 flights_df <- get_flights_table(SearchString)
 
 
-# Analysis ----------------------------------------------------------------
+```
 
-# Is it better to buy flights during the morning, afternoon or at night? Do the prices change? 
-# Is there any correlation between the days missing to the flight and their price?
+# The Datasets
 
-##### Unfortunately I couldn't collect enough data, so I simply altered the datasets randomly to check the graphs
-##### However, I promise that I will generate the datasets properly and honestly do some analysis before buying my tickets
+Once you finished running the codes you will end up having three/two datasets, one that contains the general information regarding the flights and the other one that contains the summary statistics based on the filter.  
 
+Both of datasets are saved and appended to csv's files to store the previous generated information.  
+
+What is important to mention is the the fact that both of the datasets will have columns that define the precise moment when the information was web scrapped, with the exactly period of the day and the remaining days until the flight departure.  
+
+Please find the flight dataset example bellow: 
+
+
+```{r, echo = FALSE}
 
 ##### Read the file ######
 
-flights_df <- read.csv("Final_Project/Datasets/flights_table.csv")
+flights_df <- read.csv("D:/CEU/Web_Scraping/web_scrapping_yuri/Final_Project/Datasets/flights_table.csv")
 
-## Delivery_Summary 
+head(flights_df,10)
+
+
+```
+
+
+# THE ANALYSIS
+
+
+After retriving the datasets, it´s time for the analysis. The possible questions are detailed bellow:   
+
+ Is it better to buy flights during the morning, afternoon or at night? Do the prices change?   
+ Is there any correlation between the days missing to the flight and their price?  
+ 
+ 
+ To analyse the following you can you use the following codes:
+ 
+ 
+ 
+```{r, echo = FALSE}
+
+## Analysis by Day Period and Air Company
 
 Price_Analysis_by_Day_Period_and_Aircompany <- flights_df %>%
   group_by(search_day_period, AirLineCompany) %>% 
@@ -160,6 +255,12 @@ Price_Analysis_by_Day_Period_and_Aircompany <- flights_df %>%
     max      = max(Price)
 )
 
+kable(Price_Analysis_by_Day_Period_and_Aircompany)
+
+```
+ 
+
+```{r , echo = FALSE}
 
 Price_Analysis_Remaing_days <- flights_df %>%
   group_by(remaining_days) %>% 
@@ -171,8 +272,16 @@ Price_Analysis_Remaing_days <- flights_df %>%
     min      = min(Price),
     max      = max(Price)
   )
+  
 
-#### Linear regression samples (Check later possible model transformations)
+kable(Price_Analysis_Remaing_days)
+
+```
+
+
+Now that the summary statistics are done, it's time to generate the possible correlations
+
+```{r , echo= FALSE}
 
 ggplot( data = Price_Analysis_Remaing_days, aes( x = remaining_days , y = min ) ) + 
   geom_point( color='blue') +
@@ -185,5 +294,19 @@ ggplot( data = Price_Analysis_Remaing_days, aes( x = remaining_days , y = max ) 
 ggplot( data = Price_Analysis_Remaing_days, aes( x = remaining_days , y = mean ) ) + 
   geom_point( color='blue') +
   geom_smooth( method = lm , color = 'red' )
+
+
+```
+
+
+# Conclusion
+
+
+There wasn't enough time to generate a sufficient amount of data in order to really answer those analytics questions. In order to generate the ideas of the graphs, the data was randomly generated to show the structure about what's to be evaluated. 
+The project is easy to replicate, you can use different dates and locations, and also and will definitely provide enough information in the future to analyze not only the best ticket buying option, but also how do the air companies regulate their price search data.   
+
+
+
+
 
 
